@@ -5,7 +5,7 @@ const TagController = require('../controllers/tag.controller')
 const ScheduleController = require('../controllers/schedule.controller')
 const { default: mongoose } = require('mongoose')
 
-router.use('/api/room', RoomController) qwewqe
+router.use('/api/room', RoomController)
 router.use('/api/', AuthController)
 router.use('/api/schedules', ScheduleController)
 router.use('/api/tags', TagController)
