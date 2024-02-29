@@ -1,18 +1,18 @@
 const express = require('express')
-const Schedule = require('../models/schedule.model')
-
+const Task = require('../models/task.model')
 const passport = require('passport')
-const scheduleValidator = require('../validators/schedule.validator')
+const taskValidator = require('../validators/task.validator')
 const mongoose = require('mongoose')
 const router = express.Router()
 
 router.get('', passport.authenticate('jwt', {session: false}), async (req, res) => {
     try {
-        const schedules = await Schedule.find({assignee: req.user._id}).exec()
+        const tasks = await Task.find({assignee: req.user._id}).exec()
         res.status(200).send({
-            schedules
+            tasks
         })
     } catch (error) {
+        console.log(error);
         if(error){
             res.status(500).send(error)
         }else{
@@ -21,11 +21,11 @@ router.get('', passport.authenticate('jwt', {session: false}), async (req, res) 
     }
 })
 
-router.get('/:scheduleId', passport.authenticate('jwt', {session: false}), async (req, res) => {
+router.get('/:taskId', passport.authenticate('jwt', {session: false}), async (req, res) => {
     try {
-        const schedule = await Schedule.findOne({assignee: req.user._id, _id: req.params.scheduleId}).exec()
+        const task = await Task.findOne({assignee: req.user._id, _id: req.params.taskId}).exec()
         res.status(200).send({
-            schedule
+            task
         })
     } catch (error) {
         console.log(error);
@@ -38,43 +38,30 @@ router.get('/:scheduleId', passport.authenticate('jwt', {session: false}), async
 })
 
 
-router.post('', passport.authenticate('jwt', {session: false}), scheduleValidator, async (req, res) => {
+router.post('', passport.authenticate('jwt', {session: false}), taskValidator, async (req, res) => {
     try {
         const {
-            title, 
+            title,
             description,
-            location,
-            attendees,
-            recurrence,
-            tags,
-            alert,
             priority,
-            visibility,
-            comment,
-            startAt,
-            endAt
+            status,
+            dueDate,
         } = req.body
 
-        const schedule = new Schedule({
+        const task = new Task({
             _id: new mongoose.Types.ObjectId(),
             title,
             description,
-            location,
-            attendees,
-            recurrence,
-            tags,
-            alert,
             priority,
-            visibility,
-            startAt,
-            endAt,
+            status,
+            dueDate,
             assignee: req.user._id
         })
 
-        await schedule.save()
+        await task.save()
 
         res.status(200).send({
-            schedule
+            task
         })
 
 
@@ -88,38 +75,27 @@ router.post('', passport.authenticate('jwt', {session: false}), scheduleValidato
     }
 })
 
-router.put('/:scheduleId', passport.authenticate('jwt', {session: false}), scheduleValidator, async (req, res) => {
+router.put('/:taskId', passport.authenticate('jwt', {session: false}), taskValidator, async (req, res) => {
     try {
         const {
-            title, 
-            description,
-            location,
-            attendees,
-            recurrence,
-            tags,
-            alert,
-            priority,
-            visibility,
-            comment,
-            startAt,
-            endAt
-        } = req.body
-
-        const schedule = await Schedule.findOneAndUpdate({_id: req.params.scheduleId}, {
             title,
             description,
-            location,
-            attendees,
-            recurrence,
-            tags,
-            alert,
             priority,
-            visibility,
-            startAt,
-            endAt,
+            status,
+            dueDate,
+        } = req.body
+
+        const task = await Task.findOneAndUpdate({_id: req.params.taskId}, {
+            title,
+            description,
+            priority,
+            status,
+            dueDate,
         }, {new: true})
 
-        res.status(200).send({schedule})
+        res.status(200).send({
+            task
+        })
 
     } catch (error) {
         console.log(error);
@@ -132,12 +108,12 @@ router.put('/:scheduleId', passport.authenticate('jwt', {session: false}), sched
 })
 
 
-router.delete('/:scheduleId', passport.authenticate('jwt', {session: false}), async (req, res) => {
+router.delete('/:taskId', passport.authenticate('jwt', {session: false}), async (req, res) => {
     try {
-        await Schedule.deleteOne({_id: req.params.tagId, assignee: req.user._id})
+        await Task.deleteOne({_id: req.params.taskId, assignee: req.user._id})
         res.status(200).send()
-
     } catch (error) {
+        console.log(error);
         if(error){
             res.status(500).send(error)
         }else{
@@ -149,8 +125,7 @@ router.delete('/:scheduleId', passport.authenticate('jwt', {session: false}), as
 
 router.post('/truncate', passport.authenticate('jwt', {session: false}), async (req, res) => {
     try {
-        
-        await Schedule.deleteMany()
+        await Task.deleteMany()
         res.status(200).send()
 
 

@@ -3,17 +3,6 @@ const { default: mongoose } = require('mongoose')
 const User = require('../models/user.model')
 const Tag = require('../models/tag.model')
 
-function inElementsNullable(value, array, message){
-    if(value){
-        const exists = array.some(item => item == value)
-        if(!exists){
-            throw new Error(message || 'The options not exists')
-        }
-    }
-}
-
-
-
 const validator = [
     check('title').notEmpty().withMessage('The field is required!').isString().withMessage('The field should be an alphanumeric'),
     check('priority').notEmpty().custom(value => {

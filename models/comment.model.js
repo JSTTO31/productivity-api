@@ -12,10 +12,6 @@ const commentSchedule = new Schema({
         type: String,
         required: true,
     },
-    type: {
-        type: String,
-        required: true
-    }
 }, {timestamps: true})
 
 

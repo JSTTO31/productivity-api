@@ -13,7 +13,7 @@ const TagSchema = new Schema({
     },
     color: {
         type: String,
-        required: '#999',
+        default: '#999',
     },
     owner: {type: Schema.Types.ObjectId, ref: 'User', required: true},
     default: {
