@@ -4,6 +4,7 @@ const RoomController = require('../controllers/room.controller')
 const TagController = require('../controllers/tag.controller')
 const ScheduleController = require('../controllers/schedule.controller')
 const TaskController = require('../controllers/task.controller')
+const GoogleAuthController = require('../controllers/google-auth.controller')
 const { default: mongoose } = require('mongoose')
 
 router.use('/api/room', RoomController)
@@ -11,6 +12,8 @@ router.use('/api/', AuthController)
 router.use('/api/schedules', ScheduleController)
 router.use('/api/tags', TagController)
 router.use('/api/tasks', TaskController)
+router.use('', GoogleAuthController)
+
 
 router.get('/api/users', async  (req, res) => {
     const users = await mongoose.model('User').find({})

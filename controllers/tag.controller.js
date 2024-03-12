@@ -8,9 +8,7 @@ const router = express.Router()
 router.get('', passport.authenticate('jwt', {session: false}), async (req, res) => {
     try {
         const tags = await tagModel.find({owner: req.user._id}).exec()
-        res.status(200).send({
-            tags
-        })
+        res.status(200).send(tags)
     } catch (error) {
         console.log(error);
         if(error){
@@ -107,7 +105,7 @@ router.delete('/:tagId', passport.authenticate('jwt', {session: false}), async (
 })
 
 
-router.delete('/truncate', passport.authenticate('jwt', {session: false}), async (req, res) => {
+router.post('/truncate', passport.authenticate('jwt', {session: false}), async (req, res) => {
     try {
         await tagModel.deleteMany()
         res.status(200).send()

@@ -10,10 +10,9 @@ const scheduleSchema = new Schema({
     description: String,
     location: String,
     attendees: [{type: Schema.Types.ObjectId, ref: 'User'}],
-    priority: {
-        type: String,
-        default: 'low',
-        enum: ['low', 'medium', 'high', 'very high']
+    pinned: {
+        type: Boolean,
+        default: false
     },
     recurrence: {
         type: String,
@@ -21,16 +20,12 @@ const scheduleSchema = new Schema({
         default: 'none'
     },
     tags: [{type: Schema.Types.ObjectId, ref: 'Tag'}],
-    alert: {
-        type: String,
-        default: "0 minute before"
-    },
+    reminder: String,
     visibility: {
         type: String,
         enum: ['public', 'private'],
         default: 'private'
     },
-    comments: [{type: Schema.Types.ObjectId, ref: 'Comment'}],
     startAt: {
         type: Date,
         required: true,

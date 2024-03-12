@@ -5,19 +5,9 @@ const Tag = require('../models/tag.model')
 
 const validator = [
     check('title').notEmpty().withMessage('The field is required!').isString().withMessage('The field should be an alphanumeric'),
-    check('priority').notEmpty().custom(value => {
-        if(value){
-            const exists = ['low', 'medium', 'high', 'very high'].some(item => item == value)
-            if(!exists){
-                throw new Error('The options not exists')
-            }
-        }
-
-        return value
-    }),
     check('recurrence').notEmpty().custom(value => {
         if(value){
-            const exists = ['daily', 'weekly', 'monthly'].some(item => item == value)
+            const exists = ['none', 'daily', 'weekly', 'monthly'].some(item => item == value)
             if(!exists){
                 throw new Error(message || 'The options not exists')
             }
@@ -35,15 +25,10 @@ const validator = [
 
         return value
     }),
-    check('startAt').notEmpty().custom((value) => {
-        if(new Date(value) < new Date()){
-            throw new Error('The end at date should be after the start at date!')
-        }
-
-        return value
-    }),
+    check('startAt').notEmpty(),
     check('endAt').notEmpty().custom((value, {req}) => {
         const {startAt, endAt} = req.body
+
         if(new Date(startAt) > new Date(endAt)){
             throw new Error('The end at date should be after the start at date!')
         }
@@ -69,7 +54,7 @@ const validator = [
             throw new Error('The element should be a valid object id!')
         }else{
             if(value.length > 0){
-                const exists = Tag.find({_id: {$in: value} })
+                const exists = await Tag.find({_id: {$in: value}})
                 if(exists.length != value.length){
                     throw new Error('The tag not exists in records!')
                 }
@@ -78,7 +63,7 @@ const validator = [
             return value
         }
     }),
-    (req, res, next) => validationResult(req).array().length > 0 ? res.status(401).send({errors: validationResult(req).array()}) : next()
+    (req, res, next) => validationResult(req).array().length > 0 ? res.status(422).send({errors: validationResult(req).array()}) : next()
    
 ]
 

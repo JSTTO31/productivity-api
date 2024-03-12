@@ -8,7 +8,7 @@ const router = express.Router()
 
 router.get('', passport.authenticate('jwt', {session: false}), async (req, res) => {
     try {
-        const schedules = await Schedule.find({assignee: req.user._id}).exec()
+        const schedules = await Schedule.find({assignee: req.user._id}).populate('tags').populate('attendees').exec()
         res.status(200).send({
             schedules
         })
@@ -47,10 +47,9 @@ router.post('', passport.authenticate('jwt', {session: false}), scheduleValidato
             attendees,
             recurrence,
             tags,
-            alert,
-            priority,
+            reminder,
+            pinned,
             visibility,
-            comment,
             startAt,
             endAt
         } = req.body
@@ -63,8 +62,8 @@ router.post('', passport.authenticate('jwt', {session: false}), scheduleValidato
             attendees,
             recurrence,
             tags,
-            alert,
-            priority,
+            reminder,
+            pinned,
             visibility,
             startAt,
             endAt,
@@ -88,6 +87,7 @@ router.post('', passport.authenticate('jwt', {session: false}), scheduleValidato
     }
 })
 
+
 router.put('/:scheduleId', passport.authenticate('jwt', {session: false}), scheduleValidator, async (req, res) => {
     try {
         const {
@@ -97,10 +97,9 @@ router.put('/:scheduleId', passport.authenticate('jwt', {session: false}), sched
             attendees,
             recurrence,
             tags,
-            alert,
-            priority,
+            pinned,
+            reminder,
             visibility,
-            comment,
             startAt,
             endAt
         } = req.body
@@ -112,8 +111,8 @@ router.put('/:scheduleId', passport.authenticate('jwt', {session: false}), sched
             attendees,
             recurrence,
             tags,
-            alert,
-            priority,
+            pinned,
+            reminder,
             visibility,
             startAt,
             endAt,
@@ -134,7 +133,7 @@ router.put('/:scheduleId', passport.authenticate('jwt', {session: false}), sched
 
 router.delete('/:scheduleId', passport.authenticate('jwt', {session: false}), async (req, res) => {
     try {
-        await Schedule.deleteOne({_id: req.params.tagId, assignee: req.user._id})
+        await Schedule.deleteOne({_id: req.params.scheduleId, assignee: req.user._id})
         res.status(200).send()
 
     } catch (error) {
@@ -163,5 +162,6 @@ router.post('/truncate', passport.authenticate('jwt', {session: false}), async (
         }
     }
 })
+
 
 module.exports = router

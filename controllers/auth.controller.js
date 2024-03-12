@@ -5,33 +5,28 @@ const User = require('mongoose').model('User')
 const bcrypt = require('bcrypt')
 const issueJWT = require('../utils/issueJWT')
 const authValidator = require('../validators/auth.validator')
+const registerValidator = require('../validators/register.validator')
 const passport = require('passport')
+const authMiddleware = require('../middlewares/auth.middleware')
 
 
 
-router.get('/user', passport.authenticate('jwt', {session: false}), (req, res) => {
-    res.status(200).send(null)
+router.get('/check/', authMiddleware, (req, res) => {
+    res.status(200).send({message: 'welcome back user!', user: req.user})
 })
 
-router.post('/login', authValidator, async (req, res) => {
-    try {
-        const {email, password} = req.body
-        const user = await User.findOne({email})
-        if(!user) return res.status(401).send({errors: {email: ['Invalid email password!']}})
-        const match = await bcrypt.compare(password, user.password)
-        if(!match) return res.status(401).send({errors: {password: ['Invalid password!']}})
-        user.password = ''
-        return res.send({message: 'successfully login!', user, ...issueJWT(user)})
-    } catch (error) {
-        if(error){
-            res.status(500).send(error)
-        }else{
-            res.sendStatus(500)
-        }
-    }
+router.post('/logout/', authMiddleware, (req, res, next) => {
+    req.logout((err) => {
+        if(err) return next(err)
+        res.status(200).send({message: 'Successfully Logout!'})
+    })
 })
 
-router.post('/register', async (req, res, next) => {
+router.post('/login', authValidator, passport.authenticate('local'), (req, res) => {
+    res.status(200).send({message: 'successfully login!', user: req.user})
+})
+
+router.post('/register', registerValidator, async (req, res, next) => {
     try {
         const {name, email, password} = req.body
         const hashedPassword = await hashPasswordUtil(password)
@@ -43,10 +38,10 @@ router.post('/register', async (req, res, next) => {
             password: hashedPassword
         })
 
-        res.status(200).send({
-            user, ...issueJWT(user)
+        req.login(user, (err) => {
+            if(err) return next(err)
+            res.status(200).send({message: 'successfully register'})
         })
-
         
     } catch (error) {
         console.log(error);
@@ -57,5 +52,6 @@ router.post('/register', async (req, res, next) => {
         }
     }
 }, )
+
 
 module.exports = router

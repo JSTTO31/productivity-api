@@ -1,6 +1,8 @@
 const express = require('express')
 const passport = require('passport')
 const cors = require('cors')
+const session = require('express-session')
+const MongoStore = require('connect-mongo')
 /* 
     ----------------GENERAL SETUP--------------
 */
@@ -26,8 +28,20 @@ app.use(cors({
     credentials: true,
 }))
 
+app.use(session({
+    secret: 'my secret',
+    resave: false,
+    saveUninitialized: true, 
+    cookie: {
+        secure: false,
+        maxAge: 1000 * 60 * 60 * 24 // one day
+    },
+    store: MongoStore.create({mongoUrl: process.env.DATABASE_URL})
+}))
+
 // Initialize the passport object in every incoming request
 app.use(passport.initialize())
+app.use(passport.session())
 
 // to convert the json string to json object
 app.use(express.json())
@@ -50,7 +64,7 @@ app.use(require('./routes'))
 
 // The application listen to env port or port 3000
 app.listen(process.env.PORT || 8000, () => {
-    console.log('The server is listening to port 3000');
+    console.log('The server is listening to port' + process.env.PORT || 8000);
 })
 
 
