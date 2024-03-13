@@ -4,9 +4,12 @@ const Schedule = require('../models/schedule.model')
 const passport = require('passport')
 const scheduleValidator = require('../validators/schedule.validator')
 const mongoose = require('mongoose')
+const authMiddleware = require('../middlewares/auth.middleware')
 const router = express.Router()
 
-router.get('', passport.authenticate('jwt', {session: false}), async (req, res) => {
+router.use(authMiddleware)
+
+router.get('', async (req, res) => {
     try {
         const schedules = await Schedule.find({assignee: req.user._id}).populate('tags').populate('attendees').exec()
         res.status(200).send({
@@ -21,7 +24,7 @@ router.get('', passport.authenticate('jwt', {session: false}), async (req, res) 
     }
 })
 
-router.get('/:scheduleId', passport.authenticate('jwt', {session: false}), async (req, res) => {
+router.get('/:scheduleId', async (req, res) => {
     try {
         const schedule = await Schedule.findOne({assignee: req.user._id, _id: req.params.scheduleId}).exec()
         res.status(200).send({
@@ -38,7 +41,7 @@ router.get('/:scheduleId', passport.authenticate('jwt', {session: false}), async
 })
 
 
-router.post('', passport.authenticate('jwt', {session: false}), scheduleValidator, async (req, res) => {
+router.post('', scheduleValidator, async (req, res) => {
     try {
         const {
             title, 
@@ -88,7 +91,7 @@ router.post('', passport.authenticate('jwt', {session: false}), scheduleValidato
 })
 
 
-router.put('/:scheduleId', passport.authenticate('jwt', {session: false}), scheduleValidator, async (req, res) => {
+router.put('/:scheduleId', scheduleValidator, async (req, res) => {
     try {
         const {
             title, 
@@ -131,7 +134,7 @@ router.put('/:scheduleId', passport.authenticate('jwt', {session: false}), sched
 })
 
 
-router.delete('/:scheduleId', passport.authenticate('jwt', {session: false}), async (req, res) => {
+router.delete('/:scheduleId', async (req, res) => {
     try {
         await Schedule.deleteOne({_id: req.params.scheduleId, assignee: req.user._id})
         res.status(200).send()
@@ -146,7 +149,7 @@ router.delete('/:scheduleId', passport.authenticate('jwt', {session: false}), as
 })
 
 
-router.post('/truncate', passport.authenticate('jwt', {session: false}), async (req, res) => {
+router.post('/truncate', async (req, res) => {
     try {
         
         await Schedule.deleteMany()

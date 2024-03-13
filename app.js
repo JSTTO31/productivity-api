@@ -23,6 +23,9 @@ require('./config/database.config')
 // Pass the passport in the config passport function
 require('./config/passport.config')(passport)
 
+
+app.use(express.static('public'))
+
 app.use(cors({
     origin: 'http://localhost:3000',
     credentials: true,
