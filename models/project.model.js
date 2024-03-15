@@ -14,7 +14,12 @@ const MessageSchema = new Schema({
         required: true,
         type: String,
     },
-    owner: {type: mongoose.Types.ObjectId, ref: 'User'},
+    from: {type: mongoose.Types.ObjectId, ref: 'User'},
+    unsent: {
+        type: Boolean,
+        default: false,
+    },
+    removeBy: [{type: Schema.Types.ObjectId}],
 }, {timestamps: true})
 
 const ProjectSchema = new Schema({

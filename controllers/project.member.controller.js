@@ -1,17 +1,20 @@
 const authMiddleware = require('../middlewares/auth.middleware.js')
-const projectValidator = require('../validators/project.validator.js')
+const projectMemberValidator = require('../validators/project.member.validator.js')
 const userModel = require('../models/user.model.js')
 const router = require('express').Router()
 
 router.use(authMiddleware)
 
 
-router.post('/:projectId/members', projectValidator.addMember, async (req, res) => {
+router.post('/:projectId/members', ...projectMemberValidator.addMember, async (req, res) => {
     try {
         const {members} = req.body
-        const users = await userModel.find({email: {$in: members}})
+        const users = await userModel.find({email: {$in: members.map(item => item.email)}})
         const project = req.project
-        users.forEach(item => project.members.push({user: item, role: 'member'}))
+        users.forEach(item => {
+            const member = members.find(member => member.email == item.email)
+            project.members.push({user: item, role: member.role})
+        })
         await project.save()
         res.send({
             project
@@ -21,13 +24,13 @@ router.post('/:projectId/members', projectValidator.addMember, async (req, res) 
     }
 })
 
-router.put('/:projectId/members/:memberId', projectValidator.editRole, async (req, res) => {
+router.put('/:projectId/members/:memberId', projectMemberValidator.editRole, async (req, res) => {
     try {
         const {role} = req.body
         const project = req.project
         const member = project.members.find(item => item._id == req.params.memberId)
-        
         if(!member){
+            console.log("member is not exists")
             return res.status(401).send('Unauthorize')
         }
         
@@ -41,15 +44,13 @@ router.put('/:projectId/members/:memberId', projectValidator.editRole, async (re
     }
 })
 
-
-router.delete('/:projectId/members/:memberId', projectValidator.addRoles, projectValidator.shouldBeAdmin, async (req, res) => {
+router.delete('/:projectId/members/:memberId', projectMemberValidator.removeMember, async (req, res) => {
     try {
         const project = req.project
         const member = project.members.find(item => item._id == req.params.memberId)
 
-        console.log(member);
-
         if(!member){
+            console.log('Member is not exists');
             return res.status(401).send('Unauthorize')
         }
 

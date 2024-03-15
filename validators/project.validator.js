@@ -5,7 +5,6 @@ const projectModel = require('../models/project.model')
 
 async function addRoles(req, res, next){
     const project = await projectModel.findOne({_id: req.params.projectId, 'members.user': req.user._id}).populate('members.user')
-    console.log(req.params.projectId);
     if(!project){
         console.log('should member');
         return res.status(401).send('Unauthorize')
