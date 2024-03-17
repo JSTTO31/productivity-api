@@ -9,19 +9,6 @@ const MemberSchema = new Schema({
     },
 }, {timestamps: true})
 
-const MessageSchema = new Schema({
-    text: {
-        required: true,
-        type: String,
-    },
-    from: {type: mongoose.Types.ObjectId, ref: 'User'},
-    unsent: {
-        type: Boolean,
-        default: false,
-    },
-    removeBy: [{type: Schema.Types.ObjectId}],
-}, {timestamps: true})
-
 const ProjectSchema = new Schema({
     _id: Schema.Types.ObjectId,
     title: {
@@ -35,7 +22,7 @@ const ProjectSchema = new Schema({
     },
     tasks: [{type: Schema.Types.ObjectId, ref: 'Task'}],
     members: [MemberSchema],
-    messages: [MessageSchema],
+    // messages: [MessageSchema],
 })
 
 module.exports = mongoose.model('Project',ProjectSchema)

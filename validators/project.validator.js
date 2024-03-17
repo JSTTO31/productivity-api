@@ -24,6 +24,15 @@ async function shouldBeOwner(req, res, next){
     return next()
 }
 
+async function shoudNotBeOwner(req, res, next){
+    if(!req.projectRole || req.projectRole == 'owner'){
+        console.log('should not owner');
+        return res.status(401).send('Unauthorize')
+    }
+
+    return next()
+}
+
 async function shouldBeAdmin(req, res, next){
     if(!req.projectRole || req.projectRole == 'member'){
         console.log('should admin');
@@ -97,4 +106,9 @@ const editRole = [
     }) : next()
 ]
 
-module.exports = {create, edit, addMember, editRole, shouldBeAdmin, shouldBeOwner, addRoles}
+const leave = [
+    addRoles, 
+    shoudNotBeOwner, 
+]
+
+module.exports = {create, edit, addMember, editRole, leave, shouldBeAdmin, shouldBeOwner, addRoles, shoudNotBeOwner}

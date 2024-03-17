@@ -1,6 +1,5 @@
 const authMiddleware = require('../middlewares/auth.middleware.js')
 const messageValidator = require('../validators/project.message.validator.js')
-const userModel = require('../models/user.model.js')
 const router = require('express').Router()
 
 router.use(authMiddleware)
@@ -8,16 +7,15 @@ router.use(authMiddleware)
 router.post('/:projectId/messages', messageValidator.create, async (req, res) => {
     try {
         const {text} = req.body
-        req.project.messages.push({
+        const project = req.project
+        project.messages.push({
             text, from: req.user.id
         })
    
-        await req.project.save()
-        
-        const message = req.project.messages[req.project.messages.length - 1]
+        await project.save()
 
         res.send({
-            message
+            project
         })
     } catch (error) {
         console.log(error);

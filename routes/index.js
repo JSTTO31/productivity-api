@@ -22,8 +22,8 @@ router.use('', GoogleAuthController)
 router.get('/api/users', async  (req, res) => {
     const filter = {}
 
-    if(req.query.email){
-        filter.email = {$regex: '.*' + req.query.email + '.*', $nin: req.user.email, $options: 'i'}
+    if(req.query.excepts){
+        console.log(s);
     }
 
     const users = await mongoose.model('User').find(filter).limit(5)

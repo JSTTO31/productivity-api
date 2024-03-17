@@ -61,5 +61,18 @@ router.delete('/:projectId', projectValidator.addRoles, projectValidator.shouldB
     }
 })
 
+router.delete('/:projectId/leave', projectValidator.leave, async (req, res) => {
+    try {
+        const project = req.project
+        project.members = project.members.filter(item => item.user._id != req.user.id)
+        await project.save()
+        res.send({project})
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({error})
+    }
+})
+
+
 
 module.exports = router

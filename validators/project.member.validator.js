@@ -1,6 +1,7 @@
 const {validationResult, check, body} = require('express-validator')
 const userModel = require('../models/user.model')
 const projectValidator = require('./project.validator')
+const { default: mongoose } = require('mongoose')
 
 
 const addMember = [
@@ -8,28 +9,17 @@ const addMember = [
     projectValidator.shouldBeAdmin,
     check('members.*.role')
         .notEmpty().withMessage('The role field is required')
-        .custom(async (value) => {
+        .custom(async (value, {req}) => {
             const roles = ['admin', 'member']
+
             if(!roles.some(item => value == item)){
                 throw new Error("The invalid role!")
             }
+
         }).escape(),
     check('members.*.email') 
         .notEmpty().withMessage('The field is required')
         .isEmail().withMessage("The field must be an email!")
-        // not exists in our records
-        .custom(async (members, {req}) => {
-            if(req.body.members.length < 1){
-                throw new Error('The field must have atleast one!')
-            }
-            const memberEmails = req.body.members.map(item => item.email) 
-            const users = await userModel.find({email: {$in: memberEmails}})
-            
-            if(users.length != req.body.members.length){
-                const findNotExists = memberEmails.find(item => !users.some(user => user.email == item))
-                throw new Error(findNotExists + ' email is not exists in our records')
-            }
-        })
         // exists in members
         .custom(async (members, {req}) => {
             if(req.body.members.length < 1){
@@ -45,9 +35,16 @@ const addMember = [
     check('members')
     .notEmpty().withMessage('The field is required')
     .isArray().withMessage("The field must be an array!")
-    .custom(async value => {
-        if(value.length < 1){
-            throw new Error("The field must have atleast one object!")
+    .custom(async members => {
+        if(members.length < 1){
+            throw new Error('The field must have atleast one!')
+        }
+        const memberEmails = members.map(item => item.email) 
+        const users = await userModel.find({email: {$in: memberEmails}})
+        
+        if(users.length != members.length){
+            const findNotExists = memberEmails.find(item => !users.some(user => user.email == item))
+            throw new Error(findNotExists + ' email is not exists in our records')
         }
     }),
     (req, res, next) => {
@@ -60,11 +57,11 @@ const addMember = [
 
 const editRole = [
     projectValidator.addRoles, 
-    projectValidator.shouldBeOwner,
+    projectValidator.shouldBeAdmin,
     check('role').notEmpty().withMessage('The field is required!').custom(async value => {
         const roles = ['admin', 'member'];
         if(!roles.some(item => item == value)){
-            throw new Error('The filed is invalid role!')
+            throw new Error('The filled is invalid role!')
         }
     }).escape(),
     (req, res, next) => validationResult(req).array().length > 0 ? res.status(401).send({
@@ -72,9 +69,49 @@ const editRole = [
     }) : next()
 ]
 
+const editRoles = [
+    projectValidator.addRoles, 
+    projectValidator.shouldBeAdmin,
+    check('members.*._id')
+        .notEmpty().withMessage('The field is required')
+        .custom(async (value, {req}) => {
+            if(!mongoose.isValidObjectId(value)){
+                throw new Error('The field is invalid object ID!')
+            }
+
+
+            if(!req.project.members.some(item => item._id == value)){
+                throw new Error('The field is not exists in project member')
+            }
+        })
+    ,
+    check('members.*.role')
+        .notEmpty().withMessage('The role field is required')
+        .custom(async (value, {req}) => {
+            const roles = ['admin', 'member']
+
+            if(!roles.some(item => value == item)){
+                throw new Error("The invalid role!")
+            }
+
+        }).escape(),
+    check('members')
+    .notEmpty().withMessage('The field is required')
+    .isArray().withMessage("The field must be an array!")
+    .custom(async members => {
+        if(members.length < 1){
+            throw new Error("The field must have atleast one object!")
+        }
+    }),
+    (req, res, next) => validationResult(req).array().length > 0 ? res.status(401).send({
+        errors: validationResult(req).array(),
+    }) : next()
+]
+
+
 const removeMember = [
     projectValidator.addRoles,
     projectValidator.shouldBeAdmin,
 ]
 
-module.exports = {addMember, editRole,removeMember}
+module.exports = {addMember, editRole, editRoles, removeMember}
