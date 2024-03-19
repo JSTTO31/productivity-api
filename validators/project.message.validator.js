@@ -1,8 +1,9 @@
 const {check, validationResult} = require('express-validator')
 const projectValidator = require('./project.validator')
+const messageModel = require('../models/message.model')
 
 async function injectMessage(req, res, next){
-    const message = await req.project.messages.id(req.params.messageId)
+    const message = await messageModel.findOne({project: req.project._id, _id: req.params.messageId}).populate('from')
     if(!message){
         console.log("Message is not exists")
         return res.status(401).send('Unauthorize')
@@ -14,7 +15,8 @@ async function injectMessage(req, res, next){
 }
 
 async function alreadyRemove(req, res, next){
-    if(req.message.removeBy.some(item => item == req.user.id)){
+    console.log(req.message.removedBy);
+    if(req.message.removedBy.some(item => item == req.user.id)){
         console.log('Message already remove!')
         return res.status(401).send('Unauthorize')
     }
@@ -23,7 +25,7 @@ async function alreadyRemove(req, res, next){
 }
 
 async function shouldBeOwner(req, res, next){
-    if(req.message.from != req.user.id){
+    if(req.message.from._id != req.user.id){
         console.log('Should be the owner!')
         return res.status(401).send('Unauthorize')
     }
@@ -59,5 +61,9 @@ const unsent = [
     alreadyUnsent,
 ]
 
+const getAll = [
+    projectValidator.addRoles,
+]
 
-module.exports = {create, remove, unsent}
+
+module.exports = {create, remove, unsent, getAll}

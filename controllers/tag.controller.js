@@ -3,9 +3,12 @@ const tagModel = require('../models/tag.model')
 const passport = require('passport')
 const tagValidator = require('../validators/tag.validator')
 const mongoose = require('mongoose')
+const authMiddleware = require('../middlewares/auth.middleware')
 const router = express.Router()
 
-router.get('', passport.authenticate('jwt', {session: false}), async (req, res) => {
+router.use(authMiddleware)
+
+router.get('', async (req, res) => {
     try {
         const tags = await tagModel.find({owner: req.user._id}).exec()
         res.status(200).send(tags)
@@ -19,7 +22,7 @@ router.get('', passport.authenticate('jwt', {session: false}), async (req, res) 
     }
 })
 
-router.get('/:tagId', passport.authenticate('jwt', {session: false}), async (req, res) => {
+router.get('/:tagId', async (req, res) => {
     try {
         const tag = await tagModel.findOne({owner: req.user._id, _id: req.params.tagId}).exec()
         res.status(200).send({

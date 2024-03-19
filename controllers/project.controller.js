@@ -39,11 +39,12 @@ router.post('', projectValidator.create, async (req, res) => {
     }
 })
 
-router.put('/:projectId', projectValidator.addRoles, projectValidator.shouldBeAdmin, async (req, res) => {
+router.put('/:projectId', projectValidator.edit, async (req, res) => {
     try {
-        const {starred, title} = req.body
-        req.project.starred = starred != null ? starred : req.project.starred;
-        req.project.title = title 
+        const {sections, title} = req.body
+        req.project.title = title
+        req.project.sections = sections
+
         await req.project.save()
         res.status(200).send({project: req.project})
     } catch (error) {
@@ -72,6 +73,8 @@ router.delete('/:projectId/leave', projectValidator.leave, async (req, res) => {
         res.status(500).send({error})
     }
 })
+
+
 
 
 

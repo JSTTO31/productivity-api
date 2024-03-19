@@ -9,20 +9,30 @@ const MemberSchema = new Schema({
     },
 }, {timestamps: true})
 
+
+const SectionSchema = new Schema({
+    title: {
+        type: String,
+        required: true,
+    },
+    tasks: [],
+    order: {
+        type: Number,
+        required: true,
+    }
+}, {timestamps: true})
+
+
+
 const ProjectSchema = new Schema({
     _id: Schema.Types.ObjectId,
     title: {
         type: String,
         required: true,
     },
-    icon: String,
-    starred: {
-        type: Boolean,
-        default: false
-    },
-    tasks: [{type: Schema.Types.ObjectId, ref: 'Task'}],
+    sections: [SectionSchema],
     members: [MemberSchema],
-    // messages: [MessageSchema],
+    messages: []
 })
 
 module.exports = mongoose.model('Project',ProjectSchema)
