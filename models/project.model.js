@@ -9,20 +9,36 @@ const MemberSchema = new Schema({
     },
 }, {timestamps: true})
 
+const TaskSchema = new Schema({
+    title: {
+        type: String,
+        required: true,
+    },
+    description: String,
+    dueDate: {
+        type: Date,
+        required: true
+    },
+    priority: {
+        type: String,
+        enum: ['low', 'medium', 'high']
+    },
+    messages: [],
+    assignees: [{type: mongoose.Types.ObjectId, ref: 'User'}],
+
+})
 
 const SectionSchema = new Schema({
     title: {
         type: String,
         required: true,
     },
-    tasks: [],
+    tasks: [TaskSchema],
     order: {
         type: Number,
         required: true,
     }
 }, {timestamps: true})
-
-
 
 const ProjectSchema = new Schema({
     _id: Schema.Types.ObjectId,
@@ -32,7 +48,12 @@ const ProjectSchema = new Schema({
     },
     sections: [SectionSchema],
     members: [MemberSchema],
-    messages: []
+    messages: [],
+    watchBy: [{type: mongoose.Types.ObjectId, ref: 'User'}],
+    completed: {
+        type: Boolean,
+        default: false
+    },
 })
 
 module.exports = mongoose.model('Project',ProjectSchema)

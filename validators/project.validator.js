@@ -53,12 +53,31 @@ const edit = [
     shouldBeAdmin,
     check('title').notEmpty().withMessage('The field is required!').escape(),
     check('starred').isBoolean().optional(),
-    check('sections').isArray().withMessage('The field is must be array!'),
-    (req, res, next) => validationResult(req).array().length > 0 ? res.status(401).send({
-        errors: validationResult(req).array(),
-    }) : next(),
     check('sections.*.title').notEmpty().withMessage('The field is required!'),
     check('sections.*.order').notEmpty().withMessage('The field is required!'), 
+    check('sections').isArray().withMessage('The field is must be array!'),
+    check('sections.*.tasks.*.title').notEmpty().withMessage('The field is required'),
+    // check('sections.*.tasks.*.dueDate').notEmpty().withMessage('The field is required').isDate().withMessage("The field must be date!"),
+    check('sections.*.tasks.*.priority').notEmpty().withMessage('The field is required').custom(async value => {
+        const priorities = ['low', 'medium', 'high']
+        if(!priorities.some(item => item == value)){
+            throw new Error("The field is invalid option!")
+        }
+    }),
+    check('sections.*.tasks.*.assignees.*').custom(async (value, {req}) => {
+        if(!req.project.members.some(item => item.user._id == value)){
+            throw new Error("The assigned person must be a member!")
+        }
+    }),
+    check('sections.*.tasks.*.assignees').isArray().withMessage("The field must be an array!").custom(async (value) => {
+        if(value.length < 1){
+            throw new Error("The assignees must atleast contain one element!")
+        }
+    }),
+    check('sections.*.tasks').isArray().withMessage('The field is must be array!'),
+    (req, res, next) => validationResult(req).array().length > 0 ? res.status(401).send({
+        errors: validationResult(req).array(), project: req.project
+    }) : next(),
 ]
 
 const addMember = [

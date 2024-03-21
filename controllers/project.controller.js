@@ -30,6 +30,9 @@ router.post('', projectValidator.create, async (req, res) => {
     try {
         const project = new projectModel({_id: new mongoose.Types.ObjectId(), title: req.body.title, owner: req.user._id})
         project.members.push({role: 'owner', user: req.user._id})
+        project.sections.push({title: 'To do', order: 1, tasks: []})
+        project.sections.push({title: 'In Progress', order: 2, tasks: []})
+        project.sections.push({title: 'Completed', order: 3, tasks: []})
         await project.save()
         project.members[0].user = req.user
         res.send({project})
