@@ -1,1 +1,0 @@
-import{bj as s,aD as r,F as o,s as e}from"./entry.76ac6703.js";const i=s((a,n)=>{{const{user:t}=r(o());if(!t.value)return e("/");if(!localStorage.getItem("newUser"))return e("/setting-up")}});export{i as default};
