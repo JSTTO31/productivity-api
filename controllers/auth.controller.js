@@ -11,7 +11,7 @@ const userModel = require('../models/user.model')
 
 
 router.get('/check/', authMiddleware, async (req, res) => {
-    const users = await userModel.find({})
+    // const users = await userModel.find({})
     // return res.status(200).send({users})   
 
 
