@@ -1,0 +1,1 @@
+import{c as p,V as s}from"./VBtn.99e77a7e.js";import{T as e,a0 as n,a8 as t,A as c,a9 as m}from"./entry.76ac6703.js";const V=e({...p({icon:"$menu",variant:"text"})},"VAppBarNavIcon"),B=n()({name:"VAppBarNavIcon",props:V(),setup(a,o){let{slots:r}=o;return t(()=>c(s,m(a,{class:["v-app-bar-nav-icon"]}),r)),{}}});export{B as V};
