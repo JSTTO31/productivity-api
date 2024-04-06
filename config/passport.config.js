@@ -21,18 +21,22 @@ module.exports = function(passport){
       passport.use(new GoogleStrategy({
         clientID:     process.env.GOOGLE_CLIENT_ID,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-        callbackURL: "http://localhost:8000/auth/callback",
+        callbackURL: "/auth/callback",
         passReqToCallback   : true
       },
       async function(request, accessToken, refreshToken, profile, done) {
         try {
           const user = await userModel.findOne({googleId: profile.id})
           if(!user){
+          console.log(profile.emails[0].value,);
+
             const newUser = new userModel({
               _id: new mongoose.Types.ObjectId(),
-              name: profile.displayName(),
+              googleId: profile.id,
+              name: profile.displayName,
               email: profile.emails[0].value,
-            })
+              picture: profile.picture
+            })  
 
             await newUser.save()
             return done(null, newUser)

@@ -4,7 +4,20 @@ const projectModel = require('../models/project.model')
 
 
 async function addRoles(req, res, next){
-    const project = await projectModel.findOne({_id: req.params.projectId, 'members.user': req.user._id}).populate('members.user')
+    const project = await projectModel.findOne({_id: req.params.projectId, 'members.user': req.user._id})
+                    .populate('members.user').populate({
+                        path: 'sections',
+                        populate: {
+                            path: 'tasks',
+                            populate: {
+                                path: 'notes',
+                                populate: {
+                                    path: 'from'
+                                }
+                            }
+                        }
+                    })
+                    .populate('sections.tasks.assignees')
     if(!project){
         console.log('should member');
         return res.status(401).send('Unauthorize')
@@ -57,15 +70,14 @@ const edit = [
     check('sections.*.order').notEmpty().withMessage('The field is required!'), 
     check('sections').isArray().withMessage('The field is must be array!'),
     check('sections.*.tasks.*.title').notEmpty().withMessage('The field is required'),
-    // check('sections.*.tasks.*.dueDate').notEmpty().withMessage('The field is required').isDate().withMessage("The field must be date!"),
     check('sections.*.tasks.*.priority').notEmpty().withMessage('The field is required').custom(async value => {
         const priorities = ['low', 'medium', 'high']
         if(!priorities.some(item => item == value)){
             throw new Error("The field is invalid option!")
         }
     }),
-    check('sections.*.tasks.*.assignees.*').custom(async (value, {req}) => {
-        if(!req.project.members.some(item => item.user._id == value)){
+    check('sections.*.tasks.*.assignees.*').custom(async (assignee, {req}) => {
+        if(!req.project.members.some(item => item.user._id == assignee._id)){
             throw new Error("The assigned person must be a member!")
         }
     }),

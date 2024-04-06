@@ -6,10 +6,9 @@ const router = require('express').Router()
 
 router.use(authMiddleware)
 
-router.get('/:projectId/messages', messageValidator.getAll, async (req, res) => {
+router.get(':projectId/tasks/:taskId/messages', messageValidator.getAll, async (req, res) => {
     try {
-        const project = req.project;
-        const messages = await messageModel.find({messageableId: project._id, type: 'project', removedBy: {$ne: req.user.id}}).populate('from')
+        const messages = await messageModel.find({messageableId: req.params.taskId, type: 'task', removedBy: {$ne: req.user.id}}).populate('from')
 
         res.status(200).send({messages})
     } catch (error) {
@@ -18,14 +17,14 @@ router.get('/:projectId/messages', messageValidator.getAll, async (req, res) => 
     }
 })
 
-router.post('/:projectId/messages', messageValidator.create, async (req, res) => {
+router.post(':projectId/tasks/:taskId/messages', messageValidator.create, async (req, res) => {
     try {
         const {text} = req.body
         const message = new messageModel({
             _id: new mongoose.Types.ObjectId(),
             from: req.user,
-            messageableId: req.project._id,
-            type: 'project',
+            messageableId: req.task._id,
+            type: 'task',
             text,
         })
 
@@ -41,7 +40,7 @@ router.post('/:projectId/messages', messageValidator.create, async (req, res) =>
     }
 })
 
-router.put('/:projectId/messages/:messageId/remove',  messageValidator.remove, async (req, res) => {
+router.put(':projectId/tasks/:taskId/messages/:messageId/remove',  messageValidator.remove, async (req, res) => {
     try {
         const message = req.message;
         message.removedBy.push(req.user)
@@ -54,7 +53,7 @@ router.put('/:projectId/messages/:messageId/remove',  messageValidator.remove, a
 })
 
 
-router.put('/:projectId/messages/:messageId/unsent',  messageValidator.unsent, async (req, res) => {
+router.put(':projectId/tasks/:taskId/messages/:messageId/unsent',  messageValidator.unsent, async (req, res) => {
     try {
         const message = req.message
         message.unsent = true

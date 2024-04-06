@@ -3,7 +3,7 @@ const projectValidator = require('./project.validator')
 const messageModel = require('../models/message.model')
 
 async function injectMessage(req, res, next){
-    const message = await messageModel.findOne({messageableId: req.project._id, type: 'project', _id: req.params.messageId}).populate('from')
+    const message = await messageModel.findOne({messageableId: req.task._id, type: 'task', _id: req.params.messageId}).populate('from')
     if(!message){
         console.log("Message is not exists")
         return res.status(401).send('Unauthorize')
@@ -24,23 +24,6 @@ async function alreadyRemove(req, res, next){
     return next()
 }
 
-async function shouldBeOwner(req, res, next){
-    if(req.message.from._id != req.user.id){
-        console.log('Should be the owner!')
-        return res.status(401).send('Unauthorize')
-    }
-
-    return next()
-}
-
-async function alreadyUnsent(req, res, next){
-    if(req.message.unsent){
-        console.log('Message already unsent')
-        return res.status(401).send('Unauthorize')
-    }
-
-    return next()
-}
 
 const create = [
     projectValidator.addRoles,

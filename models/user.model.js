@@ -1,5 +1,18 @@
 const mongoose = require('mongoose')
 const Schema = mongoose.Schema
+
+const PreferenceSchema = new Schema({
+    background: {
+        type: Number,
+        default: 0
+    },
+    color: {
+        type: Number,
+        default: 0
+    }
+})
+
+
 const UserSchema = new Schema({
     _id: mongoose.Types.ObjectId,
     googleId: String,
@@ -17,6 +30,8 @@ const UserSchema = new Schema({
         type: String,
         min: [8, 'The password must be atleast 8 characters!']
     },
+    picture: String,
+    preference: PreferenceSchema
 }, {timestamps: true})
 
 

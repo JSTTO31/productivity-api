@@ -11,7 +11,8 @@ router.use(authMiddleware)
 
 router.get('', async (req, res) => {
     try {
-        const schedules = await Schedule.find({assignee: req.user._id}).populate('tags').populate('attendees').exec()
+        const schedules = await Schedule.find({user: req.user._id}).populate('tags').populate('user')
+       
         res.status(200).send({
             schedules
         })
@@ -26,7 +27,7 @@ router.get('', async (req, res) => {
 
 router.get('/:scheduleId', async (req, res) => {
     try {
-        const schedule = await Schedule.findOne({assignee: req.user._id, _id: req.params.scheduleId}).exec()
+        const schedule = await Schedule.findOne({user: req.user._id, _id: req.params.scheduleId}).exec()
         res.status(200).send({
             schedule
         })
@@ -41,16 +42,17 @@ router.get('/:scheduleId', async (req, res) => {
 })
 
 
-router.post('', scheduleValidator, async (req, res) => {
+router.post('', scheduleValidator.create, async (req, res) => {
     try {
         const {
             title, 
-            description,
             location,
             attendees,
             recurrence,
             tags,
+            link,
             reminder,
+            finished,
             pinned,
             visibility,
             startAt,
@@ -59,21 +61,26 @@ router.post('', scheduleValidator, async (req, res) => {
 
         const schedule = new Schedule({
             _id: new mongoose.Types.ObjectId(),
+            user: req.user,
             title,
-            description,
             location,
             attendees,
             recurrence,
             tags,
+            link,
             reminder,
+            finished,
             pinned,
             visibility,
             startAt,
             endAt,
-            assignee: req.user._id
         })
 
         await schedule.save()
+
+        if(schedule.tags.length > 0){
+            await schedule.populate('tags')
+        }
 
         res.status(200).send({
             schedule
@@ -91,7 +98,7 @@ router.post('', scheduleValidator, async (req, res) => {
 })
 
 
-router.put('/:scheduleId', scheduleValidator, async (req, res) => {
+router.put('/:scheduleId', scheduleValidator.edit, async (req, res) => {
     try {
         const {
             title, 
@@ -102,6 +109,8 @@ router.put('/:scheduleId', scheduleValidator, async (req, res) => {
             tags,
             pinned,
             reminder,
+            finished,
+            link,
             visibility,
             startAt,
             endAt
@@ -116,10 +125,12 @@ router.put('/:scheduleId', scheduleValidator, async (req, res) => {
             tags,
             pinned,
             reminder,
+            finished,
+            link,
             visibility,
             startAt,
             endAt,
-        }, {new: true})
+        }, {new: true}).populate('tags').populate('user')
 
         res.status(200).send({schedule})
 
@@ -134,9 +145,9 @@ router.put('/:scheduleId', scheduleValidator, async (req, res) => {
 })
 
 
-router.delete('/:scheduleId', async (req, res) => {
+router.delete('/:scheduleId', scheduleValidator.remove, async (req, res) => {
     try {
-        await Schedule.deleteOne({_id: req.params.scheduleId, assignee: req.user._id})
+        await Schedule.deleteOne({_id: req.params.scheduleId, user: req.user._id})
         res.status(200).send()
 
     } catch (error) {
@@ -147,24 +158,5 @@ router.delete('/:scheduleId', async (req, res) => {
         }
     }
 })
-
-
-router.post('/truncate', async (req, res) => {
-    try {
-        
-        await Schedule.deleteMany()
-        res.status(200).send()
-
-
-    } catch (error) {
-        console.log(error);
-        if(error){
-            res.status(500).send(error)
-        }else{
-            res.sendStatus(500)
-        }
-    }
-})
-
 
 module.exports = router

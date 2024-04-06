@@ -39,7 +39,7 @@ router.get('/:tagId', async (req, res) => {
 })
 
 
-router.post('', passport.authenticate('jwt', {session: false}), tagValidator, async (req, res) => {
+router.post('', tagValidator, async (req, res) => {
     try {
         const {label, color} = req.body
         const tag = new tagModel({
@@ -67,7 +67,7 @@ router.post('', passport.authenticate('jwt', {session: false}), tagValidator, as
     }
 })
 
-router.put('/:tagId', passport.authenticate('jwt', {session: false}), tagValidator, async (req, res) => {
+router.put('/:tagId', tagValidator, async (req, res) => {
     try {
         const {label, color} = req.body
         const tag = await tagModel.findOne({_id: req.params.tagId})
@@ -91,7 +91,7 @@ router.put('/:tagId', passport.authenticate('jwt', {session: false}), tagValidat
 })
 
 
-router.delete('/:tagId', passport.authenticate('jwt', {session: false}), async (req, res) => {
+router.delete('/:tagId', async (req, res) => {
     try {
         await tagModel.deleteOne({_id: req.params.tagId, owner: req.user._id})
         res.status(200).send()
@@ -108,7 +108,7 @@ router.delete('/:tagId', passport.authenticate('jwt', {session: false}), async (
 })
 
 
-router.post('/truncate', passport.authenticate('jwt', {session: false}), async (req, res) => {
+router.post('/truncate', async (req, res) => {
     try {
         await tagModel.deleteMany()
         res.status(200).send()

@@ -3,16 +3,16 @@ const Schema = mongoose.Schema
 
 const scheduleSchema = new Schema({
     _id: Schema.Types.ObjectId,
+    user: {type: mongoose.Types.ObjectId, ref: 'User'},
     title: {
         type: String,
         required: true,
     },
-    description: String,
     location: String,
-    attendees: [{type: Schema.Types.ObjectId, ref: 'User'}],
-    pinned: {
+    // attendees: [{type: Schema.Types.ObjectId, ref: 'User'}],
+    finished: {
         type: Boolean,
-        default: false
+        default: false,
     },
     recurrence: {
         type: String,
@@ -20,11 +20,9 @@ const scheduleSchema = new Schema({
         default: 'none'
     },
     tags: [{type: Schema.Types.ObjectId, ref: 'Tag'}],
-    reminder: String,
-    visibility: {
+    reminder: {
         type: String,
-        enum: ['public', 'private'],
-        default: 'private'
+        default: '5 minutes before'
     },
     startAt: {
         type: Date,
@@ -34,12 +32,9 @@ const scheduleSchema = new Schema({
         type: Date,
         required: true,
     },
-    assignee: {
-        type: Schema.Types.ObjectId,
-        ref: 'User',
-        required: true
-    }
+    link: String,
 }, {timestamps: true})
+
 
 
 module.exports = mongoose.model('Schedule', scheduleSchema)

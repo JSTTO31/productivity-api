@@ -2,8 +2,51 @@ const {validationResult, matchedData, check, body, } = require('express-validato
 const { default: mongoose } = require('mongoose')
 const User = require('../models/user.model')
 const Tag = require('../models/tag.model')
+const Schedule = require('../models/schedule.model')
 
-const validator = [
+
+function isOwner(req, res, next){
+    const schedule = Schedule.findOne({_id: req.params.scheduleId, user: req.user.id})
+    
+    if(!schedule){
+        console.log('is not owner')
+        return res.status(401).send('Unauthorize')
+    }
+
+    req.schedule = schedule
+
+    return next()
+}
+
+async function customStartDate( value, {req}){
+    const startAt = new Date(value)
+    const endAt = new Date(req.body.endAt)
+    if(startAt > endAt){
+        throw new Error('The field must before of end date!')
+    }
+    const difference = endAt - startAt
+    const hours = difference / (1000 * 60 * 60)
+    const minutes = difference / (1000 * 60)
+    if(hours < 1 && minutes < 15){
+        throw new Error('The field must atleast 15 minutes distance!')
+    }
+}
+
+async function customEndDate( value, {req}){
+    const startAt = new Date(req.body.startAt)
+    const endAt = new Date(value)
+    if(startAt > endAt){
+        throw new Error('The field must after of start date!')
+    }
+    const difference = endAt - startAt
+    const hours = difference / (1000 * 60 * 60)
+    const minutes = difference / (1000 * 60)
+    if(hours < 1 && minutes < 15){
+        throw new Error('The field must atleast 30 minutes distance!')
+    }
+}
+
+const create = [
     check('title').notEmpty().withMessage('The field is required!').isString().withMessage('The field should be an alphanumeric'),
     check('recurrence').notEmpty().custom(value => {
         if(value){
@@ -15,9 +58,25 @@ const validator = [
 
         return value
     }),
-    check('visibility').notEmpty().custom(value => {
+    check('startAt').notEmpty().withMessage('The field is required').custom(customStartDate),
+    check('endAt').notEmpty().custom(customEndDate),
+    check('link').custom(async value => {
+        if(!value) return
+        const regex = new RegExp('^https://meet.google.com|^https://zoom.us/j/')
+        if(!regex.test(value)){
+            throw new Error('The field must be from gmeet or zoom!')
+        }
+    }),
+    (req, res, next) => validationResult(req).array().length > 0 ? res.status(422).send({errors: validationResult(req).array()}) : next()
+   
+]
+
+const edit = [
+    isOwner,
+    check('title').notEmpty().withMessage('The field is required!').isString().withMessage('The field should be an alphanumeric'),
+    check('recurrence').notEmpty().custom(value => {
         if(value){
-            const exists =  ['public', 'private'].some(item => item == value)
+            const exists = ['none', 'daily', 'weekly', 'monthly'].some(item => item == value)
             if(!exists){
                 throw new Error(message || 'The options not exists')
             }
@@ -25,47 +84,21 @@ const validator = [
 
         return value
     }),
-    check('startAt').notEmpty(),
-    check('endAt').notEmpty().custom((value, {req}) => {
-        const {startAt, endAt} = req.body
-
-        if(new Date(startAt) > new Date(endAt)){
-            throw new Error('The end at date should be after the start at date!')
-        }
-
-        return value
-    }),
-    check('attendees').isArray().custom(async (value) => {
-        if(value.some(item => !mongoose.isValidObjectId(item))){
-            throw new Error('The element should be a valid object id!')
-        }else{
-            if(value.length > 0){
-                const exists = User.find({_id: {$in: value} })
-                if(exists.length != value.length){
-                    throw new Error('The attendee not exists in records!')
-                }
-            }
-
-            return value
+    check('link').custom(async value => {
+        if(!value) return
+        const regex = new RegExp('^https://meet.google.com|^https://zoom.us/j/')
+        if(!regex.test(value)){
+            throw new Error('The field must be from gmeet or zoom!')
         }
     }),
-    check('tags').isArray().custom(async value => {
-        if(value.some(item => !mongoose.isValidObjectId(item))){
-            throw new Error('The element should be a valid object id!')
-        }else{
-            if(value.length > 0){
-                const exists = await Tag.find({_id: {$in: value}})
-                if(exists.length != value.length){
-                    throw new Error('The tag not exists in records!')
-                }
-            }
-
-            return value
-        }
-    }),
+    check('startAt').notEmpty().withMessage('The field is required').custom(customStartDate),
+    check('endAt').notEmpty().custom(customEndDate),
     (req, res, next) => validationResult(req).array().length > 0 ? res.status(422).send({errors: validationResult(req).array()}) : next()
-   
+]
+
+const remove = [
+    isOwner
 ]
 
 
-module.exports = validator
+module.exports = {edit, create, remove}

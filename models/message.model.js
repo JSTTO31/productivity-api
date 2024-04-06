@@ -3,9 +3,14 @@ const Schema = mongoose.Schema
 
 const MessageSchema = new Schema({
     _id: Schema.Types.ObjectId,
-    project: {
+    messageableId: {
         type: Schema.Types.ObjectId,
-        ref: 'project'
+        required: true,
+    },
+    type: {
+        required: true,
+        type: String,
+        enum: ['task', 'project']
     },
     from: {
         type: Schema.Types.ObjectId,
