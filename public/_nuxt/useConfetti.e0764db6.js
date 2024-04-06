@@ -1,1 +1,0 @@
-const o=()=>{const e=document.getElementById("audio-celebration");e&&(e.play(),e.volume=1),confetti({scalar:1.1,particleCount:100,angle:1,colors:["#ff4500","#9370db","#ffa500"],spread:155,velocity:200,origin:{x:.2,y:0}}),confetti({scalar:1.1,particleCount:100,angle:1,colors:["#ff4500","#9370db","#ffa500"],spread:155,velocity:200,origin:{x:.8,y:0}})};export{o as u};
