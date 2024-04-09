@@ -7,7 +7,7 @@ const TimeSpentController = require('../controllers/timespent.controller')
 const ProjectMemberController = require('../controllers/project.member.controller')
 const ProjectMessageController = require('../controllers/project.message.controller')
 const GoogleAuthController = require('../controllers/google-auth.controller')
-const { default: mongoose } = require('mongoose')
+const UserController = require('../controllers/user.controller')
 
 router.use('/api/', AuthController)
 router.use('/api/projects', ProjectController)
@@ -17,18 +17,7 @@ router.use('/api/schedules', ScheduleController)
 router.use('/api/tags', TagController)
 router.use('/api/time-spents', TimeSpentController)
 router.use('', GoogleAuthController)
-
-
-router.get('/api/users', async  (req, res) => {
-    const filter = {}
-
-    if(req.query.excepts){
-        console.log(s);
-    }
-
-    const users = await mongoose.model('User').find(filter).limit(5)
-    res.status(200).send({users})
-})
+router.use('/api/users', UserController)
 
 
 module.exports = router

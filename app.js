@@ -52,8 +52,6 @@ app.use(express.json())
 // to make the req.body available in every request
 app.use(express.urlencoded({extended: true}))
 
-
-
 /**
     ----------------Route--------------
  */

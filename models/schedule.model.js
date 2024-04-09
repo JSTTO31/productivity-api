@@ -8,6 +8,7 @@ const scheduleSchema = new Schema({
         type: String,
         required: true,
     },
+    descripion: String,
     location: String,
     // attendees: [{type: Schema.Types.ObjectId, ref: 'User'}],
     finished: {

@@ -1,6 +1,6 @@
 
 module.exports = (req, res, next) => {
-    if(!req.isAuthenticated()){
+    if(!req.user){
         return res.status(401).send('Unauthorize')
     }
 

@@ -7,10 +7,11 @@ const registerValidator = require('../validators/register.validator')
 const passport = require('passport')
 const authMiddleware = require('../middlewares/auth.middleware')
 const userModel = require('../models/user.model')
+const preference = require('../utils/preference')
 
 
 
-router.get('/check/', authMiddleware, async (req, res) => {
+router.get('/check/', authMiddleware, (req, res) => {
     // const users = await userModel.find({})
     // return res.status(200).send({users})   
 
@@ -21,8 +22,8 @@ router.get('/check/', authMiddleware, async (req, res) => {
     // })
 
     // return res.status(200).send({users})   
-
-    res.status(200).send({message: 'welcome back user!', user: req.user})
+    // const users = await userModel.updateMany({}, {preference})
+    res.status(200).send({message: 'welcome back user!', user: req.user,})
 })
 
 router.post('/logout/', authMiddleware, (req, res, next) => {
@@ -32,7 +33,8 @@ router.post('/logout/', authMiddleware, (req, res, next) => {
     })
 })
 
-router.post('/login', authValidator, passport.authenticate('local'), (req, res) => {
+router.post('/login', authValidator, passport.authenticate('local'), async (req, res) => {
+    
     res.status(200).send({message: 'successfully login!', user: req.user})
 })
 
@@ -46,7 +48,8 @@ router.post('/register', registerValidator, async (req, res, next) => {
             name,
             email,
             password: hashedPassword,
-            picture: `https://ui-avatars.com/api/?name=${name}&background=random&color=random`
+            picture: `https://ui-avatars.com/api/?name=${name}&background=random&color=random`,
+            preference
         })
 
         req.login(user, (err) => {
