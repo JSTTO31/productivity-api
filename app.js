@@ -29,7 +29,7 @@ app.use(express.static('public'))
 app.use(cors({
     origin: 'https://efficiently-au.netlify.app',
     credentials: true,
-    
+
 }))
 
 app.use(session({
@@ -38,7 +38,6 @@ app.use(session({
     saveUninitialized: true, 
     cookie: {
         secure: true,
-        sameSite: 'none',
         maxAge: 1000 * 60 * 60 * 24 // one day
     },
     store: MongoStore.create({mongoUrl: process.env.DATABASE_URL})
