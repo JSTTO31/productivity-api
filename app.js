@@ -27,8 +27,7 @@ require('./config/passport.config')(passport)
 app.use(express.static('public'))
 
 app.use(cors({
-    origin: process.env.ORIGIN,
-    allowedHeaders: '',
+    origin: 'https://efficiently-au.netlify.app',
     credentials: true,
 }))
 
