@@ -8,22 +8,34 @@ const passport = require('passport')
 const authMiddleware = require('../middlewares/auth.middleware')
 const userModel = require('../models/user.model')
 const preference = require('../utils/preference')
+const UAParser = require('ua-parser-js')
+const sessionModel = require('../models/session.model')
 
 
 
-router.get('/check/', authMiddleware, (req, res) => {
-    // const users = await userModel.find({})
-    // return res.status(200).send({users})   
+router.get('/check/', authMiddleware, async (req, res) => {
+    // const users = await userModel.updateMany({}, {guide})
+    // const users = await userModel.updateMany({}, {sessions: []})
+    const sessionId = req.sessionID
+    const parser = new UAParser()
+    const result = parser.setUA(req.headers['user-agent']).getResult()
+    const session = {sessionId, ...result, current: true}
+
+    const user = await userModel.findOne({_id: req.user._id})
+    user.sessions = user.sessions.map(item => ({...item, current: false}))
+    const exists = user.sessions.find(item => item.ua == session.ua)
+    
+    if(exists){
+        exists.updatedAt = new Date()
+        exists.current = true
+    }else{
+        user.sessions.push(session)
+    }
 
 
-    // const users = await userModel.find({})
-    // users.forEach(async (user) => {
-    //     await user.updateOne({picture: `https://ui-avatars.com/api/?name=${user.name}&background=random&color=random`})
-    // })
+    await user.save()
 
-    // return res.status(200).send({users})   
-    // const users = await userModel.updateMany({}, {preference})
-    res.status(200).send({message: 'welcome back user!', user: req.user,})
+    res.status(200).send({message: 'welcome back user!', user})
 })
 
 router.post('/logout/', authMiddleware, (req, res, next) => {
@@ -34,14 +46,25 @@ router.post('/logout/', authMiddleware, (req, res, next) => {
 })
 
 router.post('/login', authValidator, passport.authenticate('local'), async (req, res) => {
-    
-    res.status(200).send({message: 'successfully login!', user: req.user})
+    try {
+        res.status(200).send({message: 'successfully login!'})
+    } catch (error) {
+        console.log(error);
+        res.status(500).send("Something wrong with " + req.url)
+    }
 })
 
 router.post('/register', registerValidator, async (req, res, next) => {
     try {
         const {name, email, password} = req.body
         const hashedPassword = await hashedPasswordUtil(password)
+        const guide = {
+            tips: false,
+            home: false,
+            project: false,
+            schedule: false,
+            performance: false,
+        }
         
         const user = await User.create({
             _id: new mongoose.Types.ObjectId(),
@@ -49,7 +72,8 @@ router.post('/register', registerValidator, async (req, res, next) => {
             email,
             password: hashedPassword,
             picture: `https://ui-avatars.com/api/?name=${name}&background=random&color=random`,
-            preference
+            preference,
+            guide
         })
 
         req.login(user, (err) => {
@@ -66,6 +90,34 @@ router.post('/register', registerValidator, async (req, res, next) => {
         }
     }
 }, )
+
+
+router.post('/remove-other-sessions/:sessionId', authMiddleware, async (req, res) => {
+    try {
+        const user = await userModel.findOne({_id: req.user})
+        const currentSession = user.sessions.id(req.params.sessionId)
+        const sessionIds = user.sessions.filter(session => session._id != req.params.sessionId).map(session => session.sessionId)
+        console.log(sessionIds);
+        await sessionModel.deleteMany({_id: {$in: sessionIds}})
+        user.sessions = [currentSession]
+        await user.save()
+
+        res.status(200).send({user})
+    } catch (error) {
+        console.log(error);
+        res.status(500).send("Something wrong with " + req.url)
+    }
+})
+
+router.delete('/delete-account', authMiddleware, async (req, res) => {
+    try {
+        await userModel.deleteOne({_id: req.user._id})
+        res.sendStatus(204)
+    } catch (error) {
+        console.log(error);
+        res.status(500).send("Something wrong with " + req.url)
+    }
+})
 
 
 module.exports = router

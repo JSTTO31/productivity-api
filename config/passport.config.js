@@ -28,8 +28,6 @@ module.exports = function(passport){
         try {
           const user = await userModel.findOne({googleId: profile.id})
           if(!user){
-          console.log(profile.emails[0].value,);
-
             const newUser = new userModel({
               _id: new mongoose.Types.ObjectId(),
               googleId: profile.id,

@@ -63,5 +63,17 @@ router.post('/setup', authMiddleware, async (req, res) => {
     }
 })
 
+router.put('/guide/', authMiddleware, async (req,res) => {
+    try {
+        const {guide} = req.body
+        const user = await userModel.findOneAndUpdate({_id: req.user._id,}, {guide}, {new: true})
+
+        res.status(200).send({user})
+    } catch (error) {
+        console.log(error)
+        res.status(500).send('Something wrong with ' + req.url)
+    }
+})
+
 
 module.exports = router

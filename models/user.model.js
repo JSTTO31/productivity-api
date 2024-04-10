@@ -113,15 +113,27 @@ const PreferenceSchema = new Schema({
     notifications: NotificationSchema
 })
 
-const deviceSession = new Schema({
+const GuideSchema = new Schema({
+    tips: {type: Boolean, default: false},
+    home: {type: Boolean, default: false},
+    project: {type: Boolean, default: false},
+    schedule: {type: Boolean, default: false},
+    performance: {type: Boolean, default: false},
+})
+
+const session = new Schema({
     sessionId: String,
     ua: String,
     browser: Object,
     engine: Object,
     os: Object,
     device: Object,
-    cpu: Object
-})
+    cpu: Object,
+    current: {
+        type: Boolean,
+        default: false,
+    }
+}, {timestamps: true})
 
 const UserSchema = new Schema({
     _id: mongoose.Types.ObjectId,
@@ -146,14 +158,15 @@ const UserSchema = new Schema({
         type: Boolean,
         default: false,
     },
-    deviceSession: [deviceSession]
+    sessions: [session],
+    guide: GuideSchema,
 }, {timestamps: true})
 
 
-UserSchema.path('email').validate(async (value) => {
-    const count = await mongoose.models.User.countDocuments({email: value})
-    return !count
-}, 'Email already exists!')
+// UserSchema.path('email').validate(async (value) => {
+//     const count = await mongoose.models.User.countDocuments({email: value})
+//     return !count
+// }, 'Email already exists!')
 
 
 
