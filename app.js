@@ -35,7 +35,6 @@ app.use(session({
     secret: 'my secret',
     resave: false,
     saveUninitialized: true, 
-    proxy: false,
     cookie: {
         secure: true,
         sameSite: 'none',
