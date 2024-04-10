@@ -29,6 +29,7 @@ app.use(express.static('public'))
 app.use(cors({
     origin: 'https://efficiently-au.netlify.app',
     credentials: true,
+    
 }))
 
 app.use(session({
