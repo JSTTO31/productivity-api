@@ -28,7 +28,7 @@ app.use(express.static('public'))
 
 app.use(cors({
     origin: process.env.ORIGIN,
-
+    allowedHeaders: '',
     credentials: true,
 }))
 
@@ -37,7 +37,7 @@ app.use(session({
     resave: false,
     saveUninitialized: true, 
     cookie: {
-        secure: true,
+        secure: 'auto',
         sameSite: 'none',
         maxAge: 1000 * 60 * 60 * 24 // one day
     },
