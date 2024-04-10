@@ -14,7 +14,7 @@ router.get('/auth/google',
 
 router.get('/auth/callback',
     passport.authenticate( 'google', {
-        successRedirect: process.env + '/r/access/home',
+        successRedirect: process.env.ORIGIN + '/r/access/home',
         failureRedirect: '/auth/failure'
 }));
 
