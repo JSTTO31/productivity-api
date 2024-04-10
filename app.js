@@ -28,6 +28,7 @@ app.use(express.static('public'))
 
 app.use(cors({
     origin: process.env.ORIGIN,
+
     credentials: true,
 }))
 
@@ -37,6 +38,7 @@ app.use(session({
     saveUninitialized: true, 
     cookie: {
         secure: false,
+        sameSite: false,
         maxAge: 1000 * 60 * 60 * 24 // one day
     },
     store: MongoStore.create({mongoUrl: process.env.DATABASE_URL})
