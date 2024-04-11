@@ -18,6 +18,8 @@ async function addRoles(req, res, next){
                         }
                     })
                     .populate('sections.tasks.assignees')
+                    .populate('messages.from')
+
     if(!project){
         console.log('should member');
         return res.status(401).send('Unauthorize')

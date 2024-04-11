@@ -56,6 +56,24 @@ const SectionSchema = new Schema({
     }
 }, {timestamps: true})
 
+
+const MessageSchema = new Schema({
+    from: {
+        type: Schema.Types.ObjectId,
+        required: true,
+        ref: 'User'
+    },
+    text: {
+        type: String,
+        required: true,
+    },
+    removedBy: [{type: mongoose.Types.ObjectId, ref: 'User'}],
+    unsent: {
+        type: Boolean,
+        default: false,
+    }
+}, {timestamps: true})
+
 const ProjectSchema = new Schema({
     _id: Schema.Types.ObjectId,
     title: {
@@ -64,7 +82,7 @@ const ProjectSchema = new Schema({
     },
     sections: [SectionSchema],
     members: [MemberSchema],
-    messages: [],
+    messages: [MessageSchema],
 })
 
 module.exports = mongoose.model('Project',ProjectSchema)

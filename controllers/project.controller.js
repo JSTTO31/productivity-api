@@ -24,6 +24,7 @@ router.get('', async (req, res) => {
             }
         })
         .populate('sections.tasks.assignees')
+        .populate('messages.from')
         
         res.status(200).send({projects})
     } catch (error) {
@@ -178,9 +179,10 @@ router.post('', projectValidator.create, async (req, res) => {
 
 router.put('/:projectId', projectValidator.edit, async (req, res) => {
     try {
-        const {sections, title} = req.body
+        const {sections, title, messages} = req.body
         req.project.title = title
         req.project.sections = sections
+        req.project.messages = messages
 
         await req.project.save()
         res.status(200).send({project: req.project})
