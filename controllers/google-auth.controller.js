@@ -14,7 +14,8 @@ router.get('/auth/google',
 
 router.get('/auth/callback',
     passport.authenticate( 'google', {
-        successRedirect: process.env.ORIGIN + '/r/access/home',
+        // successRedirect: process.env.ORIGIN + '/r/access/home',
+        successRedirect: 'http://localhost:3000' + '/r/access/home',
         failureRedirect: '/auth/failure'
 }));
 
