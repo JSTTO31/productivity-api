@@ -179,10 +179,11 @@ router.post('', projectValidator.create, async (req, res) => {
 
 router.put('/:projectId', projectValidator.edit, async (req, res) => {
     try {
-        const {sections, title, messages} = req.body
+        const {sections, title, messages, members} = req.body
         req.project.title = title
         req.project.sections = sections
         req.project.messages = messages
+        req.project.members = members
 
         await req.project.save()
         res.status(200).send({project: req.project})

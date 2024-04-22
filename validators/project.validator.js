@@ -49,6 +49,7 @@ async function shoudNotBeOwner(req, res, next){
 }
 
 async function shouldBeAdmin(req, res, next){
+    // console.log('should be admin');
     if(!req.projectRole || req.projectRole == 'member'){
         console.log('should admin');
         return res.status(401).send('Unauthorize')
