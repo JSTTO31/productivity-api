@@ -35,10 +35,10 @@ app.use(session({
     secret: 'my secret',
     resave: false,
     saveUninitialized: true, 
-    proxy: true,
+    // proxy: true,
     cookie: {
-        secure: true,
-        sameSite: 'none',
+        // secure: true,
+        // sameSite: 'none',
         maxAge: 1000 * 60 * 60 * 24 // one day
     },
     store: MongoStore.create({mongoUrl: process.env.DATABASE_URL})

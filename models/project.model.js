@@ -21,6 +21,48 @@ const NoteSchema = new Schema({
     },
 }, {timestamps: true})
 
+const AttachmentSchema = new Schema({
+    fieldname: {
+        type: String,
+        required: true
+    },
+    originalname:  {
+        type: String,
+        required: true
+    },
+    encoding: {
+        type: String,
+        required: true
+    },
+    mimetype:  {
+        type: String,
+        required: true
+    },
+    destination:  {
+        type: String,
+        required: true
+    },
+    filename:  {
+        type: String,
+        required: true
+    },
+    path: {
+        type: String,
+        required: true
+    },
+    size:  {
+        type: String,
+        required: true
+    },
+    link:  {
+        type: String,
+        required: true
+    },
+    author: {
+        type: mongoose.Types.ObjectId,
+    }
+}, {timestamps: true})
+
 const TaskSchema = new Schema({
     title: {
         type: String,
@@ -42,6 +84,7 @@ const TaskSchema = new Schema({
         type: Boolean,
         default: false
     },
+    attachments: [AttachmentSchema]
 })
 
 const SectionSchema = new Schema({

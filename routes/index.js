@@ -8,6 +8,7 @@ const ProjectMemberController = require('../controllers/project.member.controlle
 const ProjectMessageController = require('../controllers/project.message.controller')
 const GoogleAuthController = require('../controllers/google-auth.controller')
 const UserController = require('../controllers/user.controller')
+const AttachmentController = require('../controllers/attachment.controller')
 
 router.use('/api/', AuthController)
 router.use('/api/projects', ProjectController)
@@ -18,6 +19,6 @@ router.use('/api/tags', TagController)
 router.use('/api/time-spents', TimeSpentController)
 router.use('', GoogleAuthController)
 router.use('/api/users', UserController)
-
+router.use('/api/', AttachmentController)
 
 module.exports = router
