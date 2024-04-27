@@ -1,10 +1,6 @@
 const authMiddleware = require('../middlewares/auth.middleware.js')
 const router = require('express').Router()
 const taskAttachmentValidator = require('../validators/task-attachement.validator.js')
-const multer  = require('multer')
-const upload = multer({dest: '/uploads'})
-
-
 router.use(authMiddleware)
 
 router.post('/projects/:projectId/sections/:sectionId/tasks/:taskId/attachments', taskAttachmentValidator.create, async (req, res, next) => {
